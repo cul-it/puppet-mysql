@@ -23,6 +23,22 @@ class mysql (
 		require		=> File['/var/lib/mysql'],
     }
 
+    user { 'mysql':
+      home    => '/home/mysql',
+      ensure  => present,
+      #shell  => '/bin/bash',
+      #uid    => '501',
+      #gid    => '20'
+    }
+
+    user { 'mysqldump':
+      home    => '/home/mysqldump',
+      ensure  => present,
+      #shell  => '/bin/bash',
+      #uid    => '501',
+      #gid    => '20'
+    }
+
 	file {'/var/lib/mysql':
 		ensure		=> link,
 		target		=> "${base::dbroot}/mysql",
