@@ -66,21 +66,21 @@ class mysql (
 
 	file { "/cul/bin/new_mysql_dba":
 	                ensure => file,
-	                source => "puppet:///modules/cul_db/new_mysql_dba",
+	                source => "puppet:///modules/mysql/new_mysql_dba",
 	                mode   => 0755
 	        }
 	}
 
 	file { "/cul/bin/mysql_initial_setup":
 		ensure => file,
-		source => "puppet:///modules/cul_db/mysql_initial_setup",
+		source => "puppet:///modules/mysql/mysql_initial_setup",
 		mode   => 0755,
 		replace => false
 	}
 
 	file {'/cul/bin/mysqlbackup.sh':
 		ensure		=> file,
-		source		=> "puppet:///modules/cul_db/mysqlbackup.sh",
+		source		=> "puppet:///modules/mysql/mysqlbackup.sh",
 		mode		=> '0770',
     		owner	=> 'root',
     		group	=> 'mysqldump',
