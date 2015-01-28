@@ -1,10 +1,13 @@
-class puppet-mysql (
-	$ensure			= present,
+class mysql (
+	$ensure	= present,
 )	
  {
     package { "mysql-server":
     	ensure		=> installed,
-		require     => [File["${base::dbroot}/mysql"], File["${base::logroot}/mysql"], File["${base::dbroot}/mysql"], File['/var/lib/mysql']
+		require     => [File["${base::dbroot}/mysql"],
+						File["${base::logroot}/mysql"],
+						File["${base::dbroot}/mysql"],
+						File['/var/lib/mysql']
 							]
     }
 
