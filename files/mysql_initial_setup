@@ -1,0 +1,63 @@
+#!/bin/bash
+### svn:keyword $Date: 2013-12-18 13:52:24 -0500 (Wed, 18 Dec 2013) $
+### svn:keyword $Author: puppet $
+### svn:keyword $Rev: 1248 $
+### svn:keyword $URL: https://svn.library.cornell.edu/puppet/modules/mysql-server/files/mysql_initial_setup $
+## This file is provisioned by puppet!
+
+dbroot=$1
+rootpass=`/usr/bin/apg -MNCL -a 1 -m 16 -n 1`
+mysqldumppass=`/usr/bin/apg -MNCL -a 1 -m 16 -n 1`
+hostname=`/bin/hostname`
+sysadmins=(cam2 jam265 whk2)
+
+/sbin/service mysqld stop
+#cd /var/lib
+#mv mysql $dbroot
+#ln -s $dbroot /var/lib/mysql
+
+perl -i -l -p -e "s/^old_passwords\=1/old_passwords=0/;" /etc/my.cnf
+
+/sbin/service mysqld start
+
+## reset root's mysql password
+echo "UPDATE mysql.user SET Password=PASSWORD('$rootpass') WHERE User='root'; FLUSH PRIVILEGES;" | /usr/bin/mysql -v
+echo "[mysql]" > /root/.my.cnf
+echo "user=root" >> /root/.my.cnf
+echo "password=$rootpass" >> /root/.my.cnf
+chmod 0600 /root/.my.cnf
+
+## create mysqldump user and grant permissions
+echo "GRANT RELOAD,PROCESS,SELECT,LOCK TABLES,SHOW VIEW ON *.* TO 'mysqldump'@'localhost' IDENTIFIED BY '$mysqldumppass';" | /usr/bin/mysql --defaults-file=/root/.my.cnf -v
+echo "[mysql]" > ~mysqldump/.my.cnf
+echo "user=mysqldump" >> ~mysqldump/.my.cnf
+echo "password=$mysqldumppass" >> ~mysqldump/.my.cnf
+echo "[mysqldump]" >> ~mysqldump/.my.cnf
+echo "user=mysqldump" >> ~mysqldump/.my.cnf
+echo "password=$mysqldumppass" >> ~mysqldump/.my.cnf
+chown mysqldump:mysqldump ~mysqldump/.my.cnf
+chmod 0600 ~mysqldump/.my.cnf
+
+## update /usr/local/sbin/mysqlbackup.sh with mysqldump's password
+#sed -i  "s/^PASS=.*/PASS=$mysqldumppass/g" /cul/bin/mysqlbackup.sh
+
+echo "DELETE FROM mysql.user WHERE User='';
+DELETE FROM mysql.user WHERE User='root' AND Host!='localhost';
+DROP DATABASE test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+FLUSH PRIVILEGES;"| /usr/bin/mysql --defaults-file=/root/.my.cnf -v
+
+for i in ${sysadmins[@]}; do
+
+cp /root/.my.cnf /users/$i/.my.cnf
+chown $i:$i /users/$i/.my.cnf
+
+done
+
+echo "Provision any additional MySQL DBAs" | /bin/mailx -s "MySQL set up on $hostname" jam265@cornell.edu whk2@cornell.edu cam2@cornell.edu
+
+echo "#!/bin/sh
+
+echo 'mysql_initial_setup has already been run on this server.  Remove it and re-run puppet if needed.'
+" > /cul/bin/mysql_initial_setup
+

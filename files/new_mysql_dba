@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Script for setting up a new full-privelege (DBA) mysql user
+#
+### svn:keyword $Date: 2012-01-13 10:33:13 -0500 (Fri, 13 Jan 2012) $
+### svn:keyword $Author: cam2 $
+### svn:keyword $Rev: 409 $
+### svn:keyword $URL: https://svn.library.cornell.edu/puppet/modules/mysql-server/files/new_mysql_dba $
+## This file is provisioned by puppet!
+
+cd $HOME
+
+USER=$1
+PASS=`/usr/bin/apg -MNCL -a 1 -m 16 -n 1`
+
+GRANTFILE=.tmp.$$
+
+printf 'GRANT ALL PRIVILEGES on *.* to ' > $GRANTFILE
+
+echo "$USER@localhost IDENTIFIED BY '$PASS' WITH GRANT OPTION" >> $GRANTFILE
+
+#cat $GRANTFILE
+
+mysql < $GRANTFILE
+
+rm $GRANTFILE
+
+echo "[mysql]" > .tmp.my.cnf.$USER
+echo "user=$USER" >> .tmp.my.cnf.$USER
+echo "password=$PASS" >> .tmp.my.cnf.$USER
+
+sudo mv .tmp.my.cnf.$USER /users/$USER/.my.cnf
+sudo chown $USER:$USER /users/$USER/.my.cnf
+sudo chmod 400 /users/$USER/.my.cnf
+
+echo "Full DBA privs granted to $USER on this system."

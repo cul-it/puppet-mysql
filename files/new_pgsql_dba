@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# usage: add_new_pgadmin <username>
+
+cd $HOME
+
+
+USER=$1
+PASS=`/usr/bin/apg -MNCL -a 1 -m 16 -n 1`
+USERHOME=/users/$USER
+PGPASS=$USERHOME/.pgpass
+
+sudo -u postgres psql -d postgres -c "create user $USER with superuser password '$PASS';"
+
+echo "localhost:5432:$USER:*:$PASS" > $PGPASS
+
+chmod 600 $PGPASS
+chown $USER:$USER $PGPASS
+unset PASS
+
+echo "Full DBA privs granted to $USER on this system."
