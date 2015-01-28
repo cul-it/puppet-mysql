@@ -1,4 +1,4 @@
-class cul_db::mysql::instance (
+class puppet-mysql (
 	$ensure			= present,
 )	
  {
@@ -20,42 +20,38 @@ class cul_db::mysql::instance (
 		require		=> File['/var/lib/mysql'],
     }
 
-file {'/var/lib/mysql':
-	ensure		=> link,
-	target		=> "${base::dbroot}/mysql",
-	require		=> File["${base::dbroot}/mysql"],
-	force		=> true,
-	}
-
-file {"${base::dbroot}/mysql":
-        ensure          => directory,
-        }
-
-file {'/var/log/mysql':
-	ensure		=> link,
-	target		=> "${base::logroot}/mysql",
-	require		=> File["${base::logroot}/mysql"],
-	force		=> true,
-	}
-
-file {"${base::logroot}/mysql":
-		ensure	=> directory,
-		owner 	=> 'mysql',
-		group 	=> 'mysql',
+	file {'/var/lib/mysql':
+		ensure		=> link,
+		target		=> "${base::dbroot}/mysql",
+		require		=> File["${base::dbroot}/mysql"],
+		force		=> true,
 		}
 
+	file {"${base::dbroot}/mysql":
+	        ensure          => directory,
+	        }
 
-file { "/cul/bin/new_mysql_dba":
-                ensure => file,
-                source => "puppet:///modules/cul_db/new_mysql_dba",
-                mode   => 0755
-        }
-}
+	file {'/var/log/mysql':
+		ensure		=> link,
+		target		=> "${base::logroot}/mysql",
+		require		=> File["${base::logroot}/mysql"],
+		force		=> true,
+		}
 
-class cul_db::mysql::instance::init {
-	# resources
-	include cul_db::mysql::instance
-	
+	file {"${base::logroot}/mysql":
+			ensure	=> directory,
+			owner 	=> 'mysql',
+			group 	=> 'mysql',
+			}
+
+
+	file { "/cul/bin/new_mysql_dba":
+	                ensure => file,
+	                source => "puppet:///modules/cul_db/new_mysql_dba",
+	                mode   => 0755
+	        }
+	}
+
 	file { "/cul/bin/mysql_initial_setup":
 		ensure => file,
 		source => "puppet:///modules/cul_db/mysql_initial_setup",
@@ -104,6 +100,4 @@ exec { 'mysql_initial_setup':
                              Package['mysql-server'],
                              File['/cul/bin/mysql_initial_setup'],
                            ]
-        }
-
-}
+        }	
