@@ -4,8 +4,11 @@ class mysql::instance (
  {
     package { "mysql-server":
     	ensure		=> installed,
-		require     => [File["${base::dbroot}/mysql"], File["${base::logroot}/mysql"], File["${base::dbroot}/mysql"], File['/var/lib/mysql']
-							]
+		require     => [File["${base::dbroot}/mysql"],
+						File["${base::logroot}/mysql"],
+						File["${base::dbroot}/mysql"],
+						File['/var/lib/mysql']
+						]
     }
 
     package {"mysql-devel":
@@ -17,49 +20,50 @@ class mysql::instance (
         enable      => true,
         hasrestart  => true,
         hasstatus   => true,
-		require		=> File['/var/lib/mysql'],
+		require		=> [ File['/var/lib/mysql'], User['mysql'],
+						]
     }
 
     user { 'mysql':
-      home    => '/home/mysql',
-      ensure  => present,
+	    home    => '/home/mysql',
+	    ensure  => present,
     }
 
     user { 'mysqldump':
-      home    => '/home/mysql',
-      ensure  => present,
+	    home    => '/home/mysql',
+	    ensure  => present,
     }
 
-file {'/var/lib/mysql':
-	ensure		=> link,
-	target		=> "${base::dbroot}/mysql",
-	require		=> File["${base::dbroot}/mysql"],
-	force		=> true,
+	file {'/var/lib/mysql':
+		ensure	=> link,
+		target	=> "${base::dbroot}/mysql",
+		require	=> File["${base::dbroot}/mysql"],
+		force	=> true,
 	}
 
-file {"${base::dbroot}/mysql":
-        ensure          => directory,
-        }
-
-file {'/var/log/mysql':
-	ensure		=> link,
-	target		=> "${base::logroot}/mysql",
-	require		=> File["${base::logroot}/mysql"],
-	force		=> true,
+	file {"${base::dbroot}/mysql":
+	     ensure	=> directory,
 	}
 
-file {"${base::logroot}/mysql":
+	file {'/var/log/mysql':
+		ensure	=> link,
+		target	=> "${base::logroot}/mysql",
+		require	=> File["${base::logroot}/mysql"],
+		force	=> true,
+	}
+
+	file {"${base::logroot}/mysql":
 		ensure	=> directory,
 		owner 	=> 'mysql',
 		group 	=> 'mysql',
-		}
+	}
 
 
-file { "/cul/bin/new_mysql_dba":
-                ensure => file,
-                source => "puppet:///modules/mysql/new_mysql_dba",
-                mode   => 0755
-        }
+	file { "/cul/bin/new_mysql_dba":
+        ensure => file,
+        source => "puppet:///modules/mysql/new_mysql_dba",
+        mode   => 0755
+    }
 }
 
 class mysql::instance::init {
@@ -77,8 +81,8 @@ class mysql::instance::init {
 		ensure		=> file,
 		source		=> "puppet:///modules/mysql/mysqlbackup.sh",
 		mode		=> '0770',
-    		owner	=> 'root',
-    		group	=> 'mysqldump',
+    	owner		=> 'root',
+    	group 		=> 'mysqldump',
 		replace		=> 'true',
 	}
 
@@ -101,19 +105,19 @@ class mysql::instance::init {
     file {'/usr/local/dbbackup':
             ensure  => link,  
             target	=>  "${base::culbackup}/mysql",                                                                                                                
-                    owner   => root,                                                                                                                        
-                    group   => root,                                                                                                                        
-                    mode    => 755,                                                                                                                         
-                    require => File["${base::culbackup}/mysql"]
+                owner   => root,                                                                                                                        
+                group   => root,                                                                                                                        
+                mode    => 755,                                                                                                                         
+                require => File["${base::culbackup}/mysql"]
 	}
 
 exec { 'mysql_initial_setup':
-                command => "${base::culbin}/mysql_initial_setup ${base::dbroot}/mysql",
-                creates  => '/root/.my.cnf',
-                require => [ Package['apg'],
-                             Package['mysql-server'],
-                             File['/cul/bin/mysql_initial_setup'],
-                           ]
+            command => "${base::culbin}/mysql_initial_setup ${base::dbroot}/mysql",
+            creates  => '/root/.my.cnf',
+            require => [ Package['apg'],
+                         Package['mysql-server'],
+                         File['/cul/bin/mysql_initial_setup'],
+                       ]
         }
 
 }
