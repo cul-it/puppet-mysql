@@ -29,8 +29,8 @@ echo "[mysql]" > .tmp.my.cnf.$USER
 echo "user=$USER" >> .tmp.my.cnf.$USER
 echo "password=$PASS" >> .tmp.my.cnf.$USER
 
-sudo mv .tmp.my.cnf.$USER /users/$USER/.my.cnf
-sudo chown $USER:$USER /users/$USER/.my.cnf
-sudo chmod 400 /users/$USER/.my.cnf
+sudo mv .tmp.my.cnf.$USER /home/$USER/.my.cnf
+sudo chown $USER:$USER /home/$USER/.my.cnf
+sudo chmod 400 /home/$USER/.my.cnf
 
 echo "Full DBA privs granted to $USER on this system."
