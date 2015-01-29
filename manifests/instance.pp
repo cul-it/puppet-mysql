@@ -20,7 +20,9 @@ class mysql::instance (
         enable      => true,
         hasrestart  => true,
         hasstatus   => true,
-		require		=> [ File['/var/lib/mysql'], User['mysql'],
+		require		=> [ File['/var/lib/mysql'],
+						 User['mysql'],
+						 Package['mysql-server'],
 						]
     }
 
