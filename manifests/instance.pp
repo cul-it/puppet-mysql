@@ -20,6 +20,16 @@ class mysql::instance (
 		require		=> File['/var/lib/mysql'],
     }
 
+    user { 'mysql':
+      home    => '/home/mysql',
+      ensure  => present,
+    }
+
+    user { 'mysqldump':
+      home    => '/home/mysql',
+      ensure  => present,
+    }
+
 file {'/var/lib/mysql':
 	ensure		=> link,
 	target		=> "${base::dbroot}/mysql",
