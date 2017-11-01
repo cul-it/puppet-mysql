@@ -1,15 +1,11 @@
 #!/bin/bash
-### svn:keyword $Date: 2013-12-18 13:52:24 -0500 (Wed, 18 Dec 2013) $
-### svn:keyword $Author: puppet $
-### svn:keyword $Rev: 1248 $
-### svn:keyword $URL: https://svn.library.cornell.edu/puppet/modules/mysql-server/files/mysql_initial_setup $
 ## This file is provisioned by puppet!
 
 dbroot=$1
 rootpass=`/usr/bin/apg -MNCL -a 1 -m 16 -n 1`
 mysqldumppass=`/usr/bin/apg -MNCL -a 1 -m 16 -n 1`
 hostname=`/bin/hostname`
-sysadmins=(cam2 jam265 whk2)
+sysadmins=(cam2 jam265)
 
 /sbin/service mysqld stop
 #cd /var/lib
@@ -54,7 +50,7 @@ chown $i:$i /users/$i/.my.cnf
 
 done
 
-echo "Provision any additional MySQL DBAs" | /bin/mailx -s "MySQL set up on $hostname" jam265@cornell.edu whk2@cornell.edu cam2@cornell.edu
+echo "Provision any additional MySQL DBAs" | /bin/mailx -s "MySQL set up on $hostname" jam265@cornell.edu cam2@cornell.edu
 
 echo "#!/bin/sh
 
